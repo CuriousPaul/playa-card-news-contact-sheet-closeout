@@ -1,0 +1,21 @@
+{
+  "schema": "playa-contact-sheet-visual-qa-v1",
+  "reviewer": "Kye",
+  "status": "PASS",
+  "reviewed_sheet_sha256": "REPLACE_WITH_FINAL_CONTACT_SHEET_SHA256",
+  "source_message_ref": "REPLACE_WITH_ACCESS_CONTROLLED_SOURCE_MESSAGE_REFERENCE",
+  "verbatim_human_review": "REPLACE_WITH_VERBATIM_HUMAN_REVIEW",
+  "gates": {
+    "exact_card_count_and_order": "PASS",
+    "no_missing_or_duplicate_cards": "PASS",
+    "crop_aspect_rotation_and_stale_render": "PASS",
+    "approved_identity_on_edited_cards": "PASS",
+    "preserved_originals_unchanged": "PASS",
+    "recurring_person_continuity": "PASS",
+    "distinct_person_non_collapse": "PASS",
+    "natural_face_integration": "PASS",
+    "semantic_fit_and_principal_subject": "PASS",
+    "no_unintended_text_logo_object_or_scene_drift": "PASS",
+    "truthful_artifact_label": "PASS"
+  }
+}

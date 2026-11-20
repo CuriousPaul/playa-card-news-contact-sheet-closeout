@@ -1,0 +1,10 @@
+{
+  "schema": "playa-card-news-decision-evidence-v1",
+  "card": 1,
+  "reviewer": "Kye",
+  "status": "ACCEPTED",
+  "approval_reference": "durable authoritative record reference",
+  "selected_sha256": "REPLACE_WITH_EXACT_SELECTED_SHA256",
+  "verbatim_human_decision": "REPLACE_WITH_VERBATIM_HUMAN_DECISION",
+  "source_message_ref": "REPLACE_WITH_ACCESS_CONTROLLED_SOURCE_MESSAGE_REFERENCE"
+}

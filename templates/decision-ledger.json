@@ -1,0 +1,59 @@
+{
+  "schema": "playa-card-news-decision-ledger-v1",
+  "set_id": "SET-XX",
+  "artifact_kind": "image_backgrounds",
+  "fixture": false,
+  "expected_card_count": 2,
+  "expected_card_order": [1, 2],
+  "columns": 2,
+  "cards": [
+    {
+      "card": 1,
+      "source_path": "/absolute/path/card-01-immutable.jpg",
+      "source_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "decision": "preserve_original",
+      "selected_path": "/absolute/path/card-01-immutable.jpg",
+      "selected_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "reviewer": "Kye",
+      "decision_status": "ACCEPTED",
+      "decision_evidence": [
+        {
+          "type": "preserve_record",
+          "path": "/absolute/path/card-01/PRESERVE.json",
+          "evidence_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+          "selected_sha256": "REPLACE_WITH_THE_EXACT_SELECTED_SHA256",
+          "approval_status": "ACCEPTED",
+          "approval_reference": "durable message/artifact reference"
+        }
+      ],
+      "character_id": null,
+      "same_source_person_group": null,
+      "reason": "edit not required",
+      "canonical_source_mutated": false
+    },
+    {
+      "card": 2,
+      "source_path": "/absolute/path/card-02-immutable.jpg",
+      "source_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "decision": "use_approved_derivative",
+      "selected_path": "/absolute/path/card-02-approved.png",
+      "selected_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+      "reviewer": "Paul",
+      "decision_status": "ACCEPTED",
+      "decision_evidence": [
+        {
+          "type": "human_selection",
+          "path": "/absolute/path/card-02/human-selection-final.json",
+          "evidence_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+          "selected_sha256": "REPLACE_WITH_THE_EXACT_SELECTED_SHA256",
+          "approval_status": "ACCEPTED",
+          "approval_reference": "durable message/artifact reference"
+        }
+      ],
+      "character_id": "CHAR-SETXX-PERSON-01@v1",
+      "same_source_person_group": "PERSON-GROUP-01",
+      "reason": "approved identity-safe derivative",
+      "canonical_source_mutated": false
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "playa-contact-sheet-approval-v1",
+  "reviewer": "Kye",
+  "status": "ACCEPTED",
+  "final_sheet_sha256": "REPLACE_WITH_EXACT_FINAL_CONTACT_SHEET_SHA256",
+  "approval_reference": "durable authoritative record reference",
+  "verbatim_human_approval": "REPLACE_WITH_VERBATIM_HUMAN_APPROVAL",
+  "source_message_ref": "REPLACE_WITH_ACCESS_CONTROLLED_SOURCE_MESSAGE_REFERENCE"
+}

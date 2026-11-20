@@ -1,41 +1,125 @@
-# PLAYA Card-News Contact-Sheet Closeout
+# PLAYA 카드뉴스 콘택트시트 클로즈아웃
 
-A Hermes skill for reconciling per-card human decisions and producing verifiable original, final, and comparison contact sheets for PLAYA card-news sets.
+PLAYA 카드뉴스의 **카드별 승인 결과를 빠짐없이 최종 세트에 반영하고, 사람이 승인한 이미지와 실제 납품 이미지가 같은지 검증하는 Hermes 스킬**입니다.
 
-## What it enforces
+## 이 스킬은 무엇에 쓰이나요?
 
-- Immutable canonical sources
-- Explicit `preserve_original` or `use_approved_derivative` decisions
-- Structured human-decision evidence bound to selected pixels
-- Cross-card identity continuity and distinct-person checks
-- Separate original, final, and original-vs-final contact sheets
-- Exact card order, crop, dimensions, SHA-256, and pixel-relation checks
-- Independent contact-sheet reconstruction
-- Human approval bound to the exact final-sheet SHA before packaging
-- Rejection of stale files, symlinks, FIFOs, sockets, pending/rejected paths, and source/output collisions
+카드뉴스 제작 과정에서는 카드마다 판단이 달라질 수 있습니다.
 
-## Quality baseline
+- 어떤 카드는 승인된 얼굴 편집본을 사용하고
+- 어떤 카드는 원본을 그대로 유지하며
+- 같은 인물이 여러 카드에 나오면 동일한 가상 정체성을 유지해야 하고
+- 검토 중이거나 반려된 후보는 최종본에 들어가면 안 됩니다.
 
-The workflow was derived from a human-rated 8/10 production contact sheet and retains both the successful patterns and the remaining quality risks. See [`references/quality-lessons.md`](references/quality-lessons.md).
+문제는 카드별 검토가 끝났더라도, 최종 세트를 조립할 때 **오래된 파일·잘못된 후보·누락된 승인본이 섞일 수 있다는 것**입니다. 보기 좋은 콘택트시트만으로는 이런 오류를 발견하기 어렵습니다.
 
-## Verification
+이 스킬은 카드별 사람의 결정을 하나의 권위 있는 결정 원장으로 정리한 뒤, 그 원장만을 기준으로 최종 이미지를 조립하고 검증합니다.
 
-The included tests currently cover:
+> 핵심 원칙: **시각적 완성도보다 먼저, 사람의 승인 결정을 정확히 재현한다.**
 
-- Review verification: **104/104 checks**
-- Production package authorization: **107/107 checks**
-- Adversarial negative cases: **36/36 rejected as expected**
+## 왜 좋은가요?
 
-Run:
+### 1. “승인한 것”과 “실제로 들어간 것”의 불일치를 막습니다
+
+각 카드의 원본·선택본·최종본을 경로와 SHA-256으로 결속합니다. 승인되지 않은 후보나 예전 파일이 우연히 들어가면 검증이 실패합니다.
+
+### 2. 원본 유지도 정식 품질 결정으로 다룹니다
+
+얼굴 편집이 원본보다 어색하거나 불필요한 경우, `preserve_original`을 명시적인 최종 결정으로 기록할 수 있습니다. 모든 카드를 억지로 편집하지 않습니다.
+
+### 3. 세트 전체의 인물 일관성을 확인합니다
+
+- 같은 실제 인물이 여러 카드에 등장하면 같은 승인 가상 정체성을 유지
+- 서로 다른 인물이 비슷한 합성 얼굴로 수렴하는 문제 방지
+- 원본의 연령·성별 인상, 포즈, 시선, 표정, 헤어와 장면 보존 확인
+
+### 4. 검토 목적이 다른 세 가지 콘택트시트를 자동 생성합니다
+
+- **원본 콘택트시트:** 원래 카드 순서와 장면 확인
+- **최종 콘택트시트:** 세트 전체의 최종 일관성 확인
+- **원본–최종 비교 시트:** 어떤 카드가 어떻게 바뀌었는지 감사
+
+### 5. 파일명이나 화면만 믿지 않고 실제 픽셀을 검증합니다
+
+카드 순서, 개수, 크롭, 해상도, 픽셀 관계, SHA-256을 검사하고 콘택트시트를 독립적으로 다시 렌더링해 결과를 비교합니다. 매니페스트에 적힌 값만 신뢰하지 않습니다.
+
+### 6. 최종 ZIP 전에 사람의 승인을 강제합니다
+
+정확한 최종 콘택트시트의 SHA에 Kye 또는 Paul의 승인을 결속해야 패키징을 허용합니다. 리뷰 단계의 PASS만으로는 납품 패키지를 만들 수 없습니다.
+
+## 전체 흐름
+
+```text
+카드별 승인 근거 수집
+        ↓
+카드마다 preserve_original / use_approved_derivative 확정
+        ↓
+결정 원장(decision ledger) 작성
+        ↓
+최종 카드 + 원본/최종/비교 콘택트시트 생성
+        ↓
+파일·해시·픽셀·순서 독립 검증
+        ↓
+Kye/Paul이 정확한 최종 시트 승인
+        ↓
+패키징 허용 여부 최종 검증
+```
+
+## 주요 안전장치
+
+- 원본과 승인 파생본을 수정하거나 덮어쓰지 않음
+- 카드마다 정확히 하나의 최종 결정 요구
+- 사람의 승인 근거와 선택 이미지 SHA 결속
+- `pending`, `rejected`, `blocked` 경로 차단
+- 오래된 파일, 추가 파일, 심볼릭 링크, FIFO, 소켓 차단
+- 원본·출력 경로 충돌 차단
+- 카드 누락·중복·순서 변경 차단
+- 원본 유지 카드의 픽셀 동일성 확인
+- 편집 카드가 원본과 다르고 승인본과 일치하는지 확인
+- 최종 시트 승인 전 패키징 차단
+
+## 이 스킬이 하지 않는 일
+
+이 스킬은 **제작 마지막 단계의 조립·검토·승인 검증**을 담당합니다. 다음 작업은 하지 않습니다.
+
+- 카피, CTA, 브랜드 레이아웃 결정
+- 이미지 검색이나 에셋 선정
+- 새로운 얼굴 생성 또는 편집
+- 카드 디자인 렌더링
+- 게시, 업로드, 광고 집행
+
+즉, “무엇을 만들 것인가”가 아니라 **“승인된 결과가 최종 납품물에 정확히 들어갔는가”**를 책임집니다.
+
+## 생성 결과
+
+빌더는 새 출력 디렉터리에 다음 파일을 만듭니다.
+
+```text
+cards/card-NN.png
+original-contact-sheet.jpg
+final-contact-sheet.jpg
+original-vs-final-contact-sheet.jpg
+MANIFEST.json
+```
+
+기존 출력 폴더에 병합하거나 덮어쓰지 않으며, 모든 결과는 결정 원장에서 재현할 수 있습니다.
+
+## 검증 범위
+
+포함된 테스트는 다음을 다룹니다.
+
+- 리뷰 단계 검증: **104/104 checks 통과**
+- 실제 패키징 승인 검증: **107/107 checks 통과**
+- 악의적·비정상 입력: **36/36 cases 예상대로 차단**
+
+실행:
 
 ```bash
 uv run --script scripts/smoke_test.py
 uv run --script scripts/negative_tests.py
 ```
 
-## Install for Hermes
-
-Clone the repository and link its root into your Hermes skills directory:
+## Hermes에 설치하기
 
 ```bash
 git clone https://github.com/CuriousPaul/playa-card-news-contact-sheet-closeout.git
@@ -43,8 +127,10 @@ ln -s "$PWD/playa-card-news-contact-sheet-closeout" \
   ~/.hermes/skills/playa-card-news-contact-sheet-closeout
 ```
 
-See [`SKILL.md`](SKILL.md) for the complete workflow, required artifacts, and trust boundary.
+전체 실행 절차, 결정 우선순위, 입력 스키마와 명령어는 [`SKILL.md`](SKILL.md)를 참고하세요. 실제 제작에서 얻은 성공·실패 교훈은 [`references/quality-lessons.md`](references/quality-lessons.md)에 정리되어 있습니다.
 
-## Trust boundary
+## 검증의 경계
 
-The verifier provides strict integrity and semantic binding for approval records. It does not cryptographically prove a person's identity. Approval evidence must come from an access-controlled authoritative source such as the actual review thread or governed approval store. Adversarial multi-user environments should add signed external approval records.
+이 도구는 파일 경로, 해시, 픽셀, 카드 순서와 승인 기록의 의미적 결속을 엄격하게 검증합니다. 하지만 승인자의 신원을 암호학적으로 증명하지는 않습니다.
+
+승인 근거는 실제 검토 스레드나 접근 통제된 승인 저장소처럼 권위 있는 출처에서 가져와야 합니다. 적대적 다중 사용자 환경에서는 외부 서명된 승인 기록을 추가하는 것이 좋습니다.
